@@ -33,7 +33,7 @@ export const Login = ({ onNavigateToSignup }) => {
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
             <form onSubmit={handleSubmit} style={{ padding: '40px', borderRadius: '16px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>Welcome Back</h2>
+                <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', color: '#1a1a1a', fontWeight: '800' }}>Welcome Back</h2>
                 
                 {error && (
                     <div style={{ color: '#ef4444', fontSize: '14px', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>

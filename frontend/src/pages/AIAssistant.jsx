@@ -8,10 +8,9 @@ export const AIAssistant = () => {
         { author: 'assistant', text: 'Hello! I am your AI flight assistant. How can I help you today?' }
     ]);
 
-    const { loading, postData } = useFetch(`/ai/chat`, false);
+    const { loading, postData } = useFetch(`/api/ai/chat`, false);
     const messagesEndRef = useRef(null);
 
-    // Auto-scroll to the newest message whenever the messages array updates or chat opens
     useEffect(() => {
         if (isOpen && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
