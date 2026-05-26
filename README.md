@@ -1,5 +1,12 @@
 # AI‑FlightBooker
 
+
+<img width="1536" height="1024" alt="logi_signup_page" src="https://github.com/user-attachments/assets/826faa34-4d58-42d7-b036-f076cb7e42ec" />
+<img width="1919" height="915" alt="search_flight_page" src="https://github.com/user-attachments/assets/64f51912-468d-4308-8fdc-3439c489f523" />
+<img width="1913" height="918" alt="AI_model" src="https://github.com/user-attachments/assets/a5a5a9f3-57a6-411a-a8a2-8442eabe3198" />
+<img width="1888" height="864" alt="my_bookings" src="https://github.com/user-attachments/assets/a13aef70-283b-4c4b-9252-4d5e50252adb" />
+
+
 **[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Request Feature](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API (Backend)](https://ai-flightbooker.onrender.com/)**
 
 ## Overview
