@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../hooks/useFetch';
 import { FlightCard } from '../components/FlightCard';
 import { PassengerModal } from '../components/PassengerModal';
 import axios from 'axios';
 
 export const Dashboard = ({ onWalletSync }) => {
-    const [searchParams, setSearchParams] = useState({ from: 'Varanasi', to: 'Delhi', date: '2026-06-01' });
-    const [origin, setOrigin] = useState('Varanasi');
-    const [destination, setDestination] = useState('Delhi');
-    const [date, setDate] = useState('2026-06-01');
+    // 1. Initialize state from sessionStorage if available, else use defaults
+    const [origin, setOrigin] = useState(() => sessionStorage.getItem('searchFrom') || 'Varanasi');
+    const [destination, setDestination] = useState(() => sessionStorage.getItem('searchTo') || 'Delhi');
+    const [date, setDate] = useState(() => sessionStorage.getItem('searchDate') || '2026-06-01');
+    
+    // Sync searchParams with the persisted state on initial load
+    const [searchParams, setSearchParams] = useState({ from: origin, to: destination, date });
     
     const [notification, setNotification] = useState({ body: '', type: '' });
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [fare, setFare] = useState(0);
+
+    // 2. Persist to sessionStorage whenever these values change
+    useEffect(() => {
+        sessionStorage.setItem('searchFrom', origin);
+        sessionStorage.setItem('searchTo', destination);
+        sessionStorage.setItem('searchDate', date);
+    }, [origin, destination, date]);
 
     const { data: flights, loading, error } = useFetch(
         `/api/flights`,

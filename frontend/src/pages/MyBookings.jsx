@@ -45,13 +45,11 @@ export const MyBookings = () => {
 
     const downloadTicket = async (ticketId) => {
         try {
-            // Utilizing axios to ensure authorization headers (JWT) are injected via global interceptors.
-            // responseType 'blob' is required to properly handle the binary file stream from the server.
+            // Ensure responseType 'blob' to handle PDF binary stream
             const res = await axios.get(`/api/bookings/download/${ticketId}`, {
                 responseType: 'blob', 
             });
 
-            // Generate a temporary local URL for the blob payload to trigger a programmatic download
             const fileURL = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = fileURL;
@@ -60,7 +58,6 @@ export const MyBookings = () => {
             document.body.appendChild(link);
             link.click();
             
-            // DOM cleanup and memory release
             document.body.removeChild(link);
             window.URL.revokeObjectURL(fileURL);
             
@@ -68,6 +65,39 @@ export const MyBookings = () => {
         } catch (err) {
             console.error("Ticket download failed:", err);
             showToast("Failed to download ticket.", true);
+        }
+    };
+
+    // Process ticket cancellation and update UI state
+    const cancelBooking = async (ticketId) => {
+        if (!window.confirm("Confirm Ticket Cancellation: This will cancel your booking and immediately refund the fare to your wallet. Do you wish to proceed?")) {
+    return;
+}
+
+        try {
+            const res = await axios.patch(`/api/bookings/${ticketId}/cancel`);
+            
+            if (res.data?.success) {
+                showToast("Ticket cancelled successfully.");
+                
+                // Update local state instantly to reflect cancellation
+                setBookings(prevBookings => 
+                    prevBookings.map(booking => 
+                        booking.ticketNumber === ticketId 
+                            ? { ...booking, status: 'CANCELLED' } 
+                            : booking
+                    )
+                );
+
+                // Reload page after 1.5s delay to sync wallet balance globally
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+        } catch (err) {
+            console.error("Cancellation failed:", err);
+            const errorMsg = err.response?.data?.message || "Failed to cancel ticket.";
+            showToast(errorMsg, true);
         }
     };
 
@@ -120,9 +150,29 @@ export const MyBookings = () => {
                                     Date: {item.flightDetails?.travelDate || "N/A"}
                                 </div>
                             </div>
-                            <button onClick={() => downloadTicket(item.ticketNumber)} style={{ background: '#0284c7', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>
-                                Download
-                            </button>
+                            
+                            {/* Actions Container */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                                {item.status === 'CANCELLED' ? (
+                                    <div style={{ textAlign: 'right' }}>
+                                        <span style={{ background: '#fee2e2', color: '#ef4444', padding: '6px 12px', borderRadius: '4px', fontWeight: 'bold', fontSize: '13px', display: 'inline-block' }}>
+                                            CANCELLED
+                                        </span>
+                                        <div style={{ color: '#10b981', fontSize: '13px', marginTop: '6px', fontWeight: '600' }}>
+                                            Amount refunded to wallet
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button onClick={() => cancelBooking(item.ticketNumber)} style={{ background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
+                                            Cancel Ticket
+                                        </button>
+                                        <button onClick={() => downloadTicket(item.ticketNumber)} style={{ background: '#0284c7', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
+                                            Download
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

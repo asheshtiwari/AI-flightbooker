@@ -26,12 +26,14 @@ AI‑FlightBooker is a production‑ready, full‑stack flight booking engine bu
 1.  **Stateless JWT auth:** Uses `expiresIn: '7d'` and Axios interceptors for automatic token injection.
 2.  **Atomic updates:** Wallet operations use MongoDB atomic operators (`$inc`, `$set`) to avoid race conditions and negative balances.
 3.  **Synchronous checkout:** Balance validation, seat inventory decrement, and booking writes are executed as a tightly coupled operation to maintain ledger consistency.
+4. **Instant Cancellation & Auto-Refunds:**Built a seamless one-click cancellation flow that automatically frees up the flight seat and instantly credits the refund back to the user's wallet.
 
 ### AI Concierge (RAG)
 1.  **Context injection:** `/api/ai/chat` injects the authenticated user’s wallet balance and last five bookings (optimized via `.lean()`) into the LLM prompt.
 2.  **Domain guardrails:** System prompts constrain the model to aviation, ticketing, and wallet tasks only.
 3.  **Graceful degradation:** If the LLM fails or times out, the API returns a structured offline response to avoid frontend crashes.
 4.  **Payload sanitization:** Incoming messages are trimmed and validated server‑side to avoid empty requests and unnecessary token usage.
+5. **Context-Aware AI Support:** Upgraded the AI RAG pipeline to dynamically read the database state, allowing the AI assistant to provide users with real-time, human-like updates regarding their cancelled tickets and wallet refund statuses.
 
 ### PDF Streaming
 1.  **Memory‑optimized:** Tickets are generated with `pdfkit` and streamed directly to the client via `doc.pipe(res)`, avoiding server disk writes.

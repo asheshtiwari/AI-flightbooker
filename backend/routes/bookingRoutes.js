@@ -9,5 +9,6 @@ const { protect } = require('../middlewares/authMiddleware');
 router.get('/history', protect, bookingController.getUserBookingHistory);
 router.delete('/clear', protect, bookingController.clearAllBookingRecords);
 router.get('/download/:ticketId', protect, bookingController.downloadTicketDocumentPdf);
+router.patch('/:ticketId/cancel', protect, bookingController.cancelTicketBooking);
 
 module.exports = router;

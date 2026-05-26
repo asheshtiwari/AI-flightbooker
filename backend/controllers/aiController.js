@@ -43,13 +43,25 @@ const handleChatInteractions = async (req, res) => {
             recentBookings.forEach((b, i) => {
                 // Normalize date string for better LLM comprehension
                 const travelDate = new Date(b.flightDetails.travelDate).toLocaleDateString();
-                contextData += `${i + 1}. Ticket ID: ${b.ticketNumber}, Route: ${b.flightDetails.departure} to ${b.flightDetails.destination}, Date: ${travelDate}, Paid Amount: INR ${b.totalPaidFare}\n`;
+                
+                // Inject the cancellation status so the AI is aware of it. Fallback to 'CONFIRMED' for older tickets.
+                const ticketStatus = b.status || 'CONFIRMED';
+                
+                contextData += `${i + 1}. Ticket ID: ${b.ticketNumber}, Route: ${b.flightDetails.departure} to ${b.flightDetails.destination}, Date: ${travelDate}, Paid Amount: INR ${b.totalPaidFare}, Status: ${ticketStatus}\n`;
             });
         } else {
             contextData += "Recent Bookings: No bookings found.\n";
         }
 
-        const systemPrompt = `You are the official AI Flight Assistant for AI-FlightBooker. Your sole responsibility is to assist users with flight searches, explaining surge pricing, wallet balance queries, ticket bookings, and travel itineraries. Do NOT answer questions about coding, general knowledge, essay writing, or anything outside the travel and aviation domain. Keep responses concise, professional, and helpful. Use the CURRENT USER DATA CONTEXT provided below to answer any questions about their account, balance, or past tickets directly.${contextData}`;
+        // Refined prompt to enforce human-like conversation and prevent AI-speak
+        const systemPrompt = `You are the official Customer Support Agent for AI-FlightBooker. Your sole responsibility is to assist users with flight searches, wallet balance queries, ticket bookings, and cancellations. Do NOT answer questions outside the travel and aviation domain. Keep responses concise, professional, and helpful. 
+
+CRITICAL RULES:
+1. NEVER use phrases like "Based on the provided user data context", "According to my data", or "As an AI". Speak naturally as if you are a human agent looking at their account screen.
+2. If a user asks about a cancelled ticket, check the Recent Bookings context. If a ticket's Status is CANCELLED, acknowledge it naturally and reassure them that the fare (Paid Amount) has been fully refunded to their wallet.
+3. Always maintain a polite and reassuring tone.
+
+${contextData}`;
 
         const chatResponse = await cohereClient.chat({
             model: 'command-a-03-2025',

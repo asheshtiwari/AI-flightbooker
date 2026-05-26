@@ -21,7 +21,10 @@ const bookingSchema = new mongoose.Schema({
     isSurgeApplied: { type: Boolean, default: false },
     surgePrice: { type: Number, default: 0 },
     
-    bookingDate: { type: Date, default: Date.now }
+    bookingDate: { type: Date, default: Date.now },
+    // tracking ticket status for cancellation
+    status: { type: String, enum: ['CONFIRMED', 'CANCELLED'], default: 'CONFIRMED' }
+
 }, {
     
 
