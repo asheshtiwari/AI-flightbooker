@@ -10,7 +10,7 @@ export const AuthScreen = () => {
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Authentication screen header */}
             <header style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}>
-                <h1 style={{ margin: 0, color: '#ffffff', fontSize: '24px' }}>Flight Booking Portal</h1>
+                <h1 style={{ margin: 0, color: '#ffffff', fontSize: '24px' }}>AI-FlightBooker</h1>
             </header>
 
             {/* Render the active authentication component dynamically */}
