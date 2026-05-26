@@ -15,7 +15,7 @@ export const Dashboard = ({ onWalletSync }) => {
     const [fare, setFare] = useState(0);
 
     const { data: flights, loading, error } = useFetch(
-        `${import.meta.env.VITE_API_BASE_URL}/flights`,
+        `/flights`,
         true,
         searchParams
     );
@@ -38,7 +38,7 @@ export const Dashboard = ({ onWalletSync }) => {
     const handleConfirmBooking = async (passengers) => {
         try {
             const payload = { flightNumber: selectedFlight.flightNumber, seatCost: fare, passengers };
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/wallet/deduct`, payload);
+            const res = await axios.post(`/wallet/deduct`, payload);
 
             if (res.data?.success) {
                 notify("Reservation confirmed!", 'success');

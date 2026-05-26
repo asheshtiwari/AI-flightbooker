@@ -8,7 +8,7 @@ export const AIAssistant = () => {
         { author: 'assistant', text: 'Hello! I am your AI flight assistant. How can I help you today?' }
     ]);
 
-    const { loading, postData } = useFetch(`${import.meta.env.VITE_API_BASE_URL}/ai/chat`, false);
+    const { loading, postData } = useFetch(`/ai/chat`, false);
     const messagesEndRef = useRef(null);
 
     // Auto-scroll to the newest message whenever the messages array updates or chat opens

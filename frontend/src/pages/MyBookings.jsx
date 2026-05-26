@@ -16,7 +16,7 @@ export const MyBookings = () => {
         const fetchBookings = async () => {
             setIsLoading(true);
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/bookings/history`);
+                const res = await axios.get(`/bookings/history`);
                 if (Array.isArray(res.data)) {
                     setBookings(res.data);
                 }
@@ -31,7 +31,7 @@ export const MyBookings = () => {
 
     const deleteBookings = async () => {
         try {
-            const res = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/bookings/clear`);
+            const res = await axios.delete(`/bookings/clear`);
             if (res.data?.success) {
                 setBookings([]);
                 setShowDeleteModal(false);
@@ -47,7 +47,7 @@ export const MyBookings = () => {
         try {
             // Utilizing axios to ensure authorization headers (JWT) are injected via global interceptors.
             // responseType 'blob' is required to properly handle the binary file stream from the server.
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/bookings/download/${ticketId}`, {
+            const res = await axios.get(`/bookings/download/${ticketId}`, {
                 responseType: 'blob', 
             });
 

@@ -16,17 +16,18 @@ export const Signup = ({ onNavigateToLogin }) => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
+            
+            const response = await axios.post('/api/auth/register', {
                 name,
                 email,
                 password
             });
 
-            // Auto-authenticate user if the backend returns a token upon registration
+            // Auto-authenticate user if the backend returns a token upon successful registration
             if (response.data.token) {
                 login(response.data.user, response.data.token);
             } else {
-                // Redirect to login form if manual authentication is required
+                // Redirect to login form if manual authentication is required post-registration
                 onNavigateToLogin();
             }
         } catch (err) {

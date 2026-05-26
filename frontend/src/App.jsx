@@ -26,7 +26,7 @@ const AppContent = () => {
     
     const fetchBalance = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/wallet/balance`);
+        const response = await axios.get(`/wallet/balance`);
         if (response.data?.balance !== undefined) {
           setCurrentUserWallet(Number(response.data.balance));
         }
@@ -40,12 +40,12 @@ const AppContent = () => {
   const handleRecharge = async (amount) => {
     const value = Number(amount);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/wallet/recharge`, { amount: value });
+      const response = await axios.post(`/wallet/recharge`, { amount: value });
       if (response.data?.currentBalance !== undefined) {
         setCurrentUserWallet(Number(response.data.currentBalance));
         showToast(`₹${value} added successfully!`, false);
       } else {
-        const fallback = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/wallet/balance`);
+        const fallback = await axios.get(`/wallet/balance`);
         setCurrentUserWallet(Number(fallback.data.balance));
       }
     } catch (err) {
@@ -58,7 +58,7 @@ const AppContent = () => {
   const handleWithdraw = async (amount) => {
     const value = Number(amount);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/wallet/withdraw`, { amount: value });
+      const response = await axios.post(`/wallet/withdraw`, { amount: value });
       if (response.data?.currentBalance !== undefined) {
         setCurrentUserWallet(Number(response.data.currentBalance));
         showToast(`₹${value} successfully withdrawn.`, false);
