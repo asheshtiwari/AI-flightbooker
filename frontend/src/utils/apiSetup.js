@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// YAHAN APNA RENDER KA LIVE LINK ADD KARO:
+axios.defaults.baseURL = 'https://ai-flightbooker.onrender.com';
+
 /**
  * Global API Interceptor Setup
  * Handles JWT injection and automated session cleanup on unauthorized access.
