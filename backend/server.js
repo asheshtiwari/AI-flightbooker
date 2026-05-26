@@ -21,6 +21,15 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
+// Health Check Route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "AI-FlightBooker API is running smoothly!",
+    version: "1.0.0"
+  });
+});
+
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/flights', flightRoutes);
