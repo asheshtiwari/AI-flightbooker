@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-// YAHAN APNA RENDER KA LIVE LINK ADD KARO:
-axios.defaults.baseURL = 'https://ai-flightbooker.onrender.com';
+// LOGIC: if use local computer and render also
+const isLocalDev = import.meta.env.MODE === 'development';
+
+axios.defaults.baseURL = isLocalDev 
+    ? 'http://localhost:5000' 
+    : 'https://ai-flightbooker.onrender.com';
 
 /**
  * Global API Interceptor Setup
