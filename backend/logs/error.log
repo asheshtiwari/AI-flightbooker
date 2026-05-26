@@ -1,3 +1,0 @@
-{"level":"error","message":"Error querying wallet repository details: Cast to ObjectId failed for value \"balance\" (type string) at path \"_id\" for model \"User\"","timestamp":"2026-05-20T22:11:07.840Z"}
-{"level":"error","message":"Cohere API pipeline error response: {\"id\":\"7d70db5c-0e06-4e4c-a3fc-19434953d626\",\"message\":\"Generate API was removed on September 15 2025. Please migrate to Chat API. See https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat for details.\"}","timestamp":"2026-05-20T22:12:06.901Z"}
-{"level":"error","message":"Error querying wallet repository details: Cast to ObjectId failed for value \"balance\" (type string) at path \"_id\" for model \"User\"","timestamp":"2026-05-20T22:13:57.216Z"}
