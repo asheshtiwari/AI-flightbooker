@@ -35,6 +35,12 @@ const buildTicketPdfStream = (booking, res) => {
     doc.text(`Airline: ${booking.flightDetails.airline} (${booking.flightDetails.flightNumber})`);
     doc.text(`Route: ${booking.flightDetails.departure} to ${booking.flightDetails.destination}`);
     doc.text(`Travel Date: ${booking.flightDetails.travelDate}`);
+    
+    // NAYA TIME LOGIC YAHAN ADD HUA HAI (Safely checking for old tickets)
+    const depTime = booking.flightDetails.departureTime || '10:00 AM';
+    const arrTime = booking.flightDetails.arrivalTime || '12:30 PM';
+    doc.text(`Time: ${depTime} - ${arrTime}`);
+    
     doc.moveDown(2);
 
     // Passengers

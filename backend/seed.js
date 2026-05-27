@@ -6,7 +6,7 @@ const Flight = require('./models/Flight');
 const User = require('./models/User');
 const logger = require('./utils/logger');
 
-// ENTERPRISE SAFEGUARD: Prevent accidental database wipes in production
+//  Prevent accidental database wipes in production
 if (process.env.NODE_ENV === 'production') {
     logger.error("DANGER: Seed script execution blocked. You cannot wipe data in the production environment!");
     process.exit(1);
@@ -23,9 +23,9 @@ defaultDate.setDate(defaultDate.getDate() + 7);
 const travelDateString = defaultDate.toISOString().split('T')[0];
 
 const defaultFlights = [
-    { flightNumber: "AI-302", airline: "Air India", departure: "DEL", destination: "BOM", baseFare: 5000, availableSeats: 50, travelDate: travelDateString },
-    { flightNumber: "6E-512", airline: "IndiGo", departure: "BHO", destination: "DEL", baseFare: 3500, availableSeats: 70, travelDate: travelDateString },
-    { flightNumber: "SG-841", airline: "SpiceJet", departure: "BLR", destination: "CCU", baseFare: 5500, availableSeats: 40, travelDate: travelDateString }
+    { flightNumber: "AI-302", airline: "Air India", departure: "DEL", destination: "BOM", baseFare: 5000, availableSeats: 50, travelDate: travelDateString, departureTime: "06:00 AM", arrivalTime: "08:15 AM" },
+    { flightNumber: "6E-512", airline: "IndiGo", departure: "BHO", destination: "DEL", baseFare: 3500, availableSeats: 70, travelDate: travelDateString, departureTime: "10:30 AM", arrivalTime: "12:00 PM" },
+    { flightNumber: "SG-841", airline: "SpiceJet", departure: "BLR", destination: "CCU", baseFare: 5500, availableSeats: 40, travelDate: travelDateString, departureTime: "04:45 PM", arrivalTime: "07:10 PM" }
 ];
 
 mongoose.connect(process.env.MONGO_URI)

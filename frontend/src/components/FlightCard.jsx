@@ -5,6 +5,10 @@ export const FlightCard = ({ flight = {}, onBookFlight }) => {
     const finalFare = flight.baseFare || 3500;
     const isSurge = flight.isHiked || false;
 
+    // Fallback for older data just in case
+    const depTime = flight.departureTime || '10:00 AM';
+    const arrTime = flight.arrivalTime || '12:30 PM';
+
     return (
         <div style={{
             background: '#ffffff', padding: '20px', borderRadius: '8px',
@@ -23,9 +27,11 @@ export const FlightCard = ({ flight = {}, onBookFlight }) => {
                     <strong>{flight.departure}</strong> &rarr; <strong>{flight.destination}</strong>
                 </p>
                 
-                <div style={{ display: 'flex', gap: '15px', marginTop: '8px', fontSize: '13px', color: '#777' }}>
+                <div style={{ display: 'flex', gap: '15px', marginTop: '8px', fontSize: '13px', color: '#777', flexWrap: 'wrap' }}>
                     <span>Available Seats: <strong>{flight.availableSeats}</strong></span>
                     <span>Date: {flight.travelDate}</span>
+                    {/* Naya Time section yahan add kiya hai */}
+                    <span>Time: <strong>{depTime} - {arrTime}</strong></span>
                 </div>
             </div>
 

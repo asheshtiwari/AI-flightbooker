@@ -7,7 +7,9 @@ const flightSchema = new mongoose.Schema({
     destination: { type: String, required: true },
     baseFare: { type: Number, required: true },
     availableSeats: { type: Number, required: true, default: 60 },
-    travelDate: { type: String, required: true } 
+    travelDate: { type: String, required: true },
+    departureTime: { type: String, required: true, default: '10:00 AM' },
+    arrivalTime: { type: String, required: true, default: '12:30 PM' } 
 });
 
 module.exports = mongoose.model('Flight', flightSchema);

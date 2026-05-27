@@ -71,8 +71,8 @@ export const MyBookings = () => {
     // Process ticket cancellation and update UI state
     const cancelBooking = async (ticketId) => {
         if (!window.confirm("Confirm Ticket Cancellation: This will cancel your booking and immediately refund the fare to your wallet. Do you wish to proceed?")) {
-    return;
-}
+            return;
+        }
 
         try {
             const res = await axios.patch(`/api/bookings/${ticketId}/cancel`);
@@ -148,6 +148,10 @@ export const MyBookings = () => {
                                 </div>
                                 <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px', fontWeight: '500' }}>
                                     Date: {item.flightDetails?.travelDate || "N/A"}
+                                </div>
+                                {/* NAYA TIME SECTION YAHAN ADD KIYA HAI */}
+                                <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '2px', fontWeight: '500' }}>
+                                    Time: {item.flightDetails?.departureTime || '10:00 AM'} - {item.flightDetails?.arrivalTime || '12:30 PM'}
                                 </div>
                             </div>
                             
