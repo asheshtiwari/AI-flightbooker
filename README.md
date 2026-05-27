@@ -24,7 +24,7 @@ AI‑FlightBooker is a production‑ready, full‑stack flight booking engine bu
 ## Key Features
 
 ### Dynamic Pricing
-1.  **Compounding surge:** After 3 searches for the same route, fares apply a compounding 10% multiplier using `Math.pow(1.10, n)` for extra searches.
+1.  **Compounding surge:** Developed a custom pricing system that increases flight fares by 10% after 3 bookings are made for a specific flight date, with a maximum limit of 50% to handle real-world high demand.
 2.  **Safety cap:** Surge is strictly capped at 50% of the base fare (`baseFare * 1.50`) to prevent runaway inflation.
 3.  **Calculation isolation:** Backend computes base fare and surge separately and renders the breakdown on invoices so the frontend cannot tamper with pricing.
 4.  **Test‑driven verification:** Pricing logic and edge cases (zero‑values, thresholds) are independently verified before execution via a custom Node.js assert test suite (`pricing.test.js`).
