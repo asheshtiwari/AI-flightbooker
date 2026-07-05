@@ -4,69 +4,104 @@ const Booking = require('../models/Booking');
 
 const getWalletBalance = async (req, res) => {
     try {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        
-        // Retrieve the authenticated user securely injected by the auth middleware
-        let user = req.user;
-
-    
-        if (user.walletBalance > 100000) {
-            user = await User.findOneAndUpdate(
-                { _id: user._id },
-                { $set: { walletBalance: 0 } },
-                { new: true }
-            ).lean();
+        // Always fetch fresh balance from DB, middleware data can be stale
+        const user = await User.findById(req.user._id).lean();
+        if (!user) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "User not found" 
+            });
         }
 
-        return res.status(200).json({ success: true, balance: user.walletBalance || 0 });
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ 
+            success: true, 
+            balance: user.walletBalance 
+        });
+
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, balance: 0 });
+        console.error("Wallet fetch error:", error);
+        return res.status(500).json({ 
+            success: false, 
+            balance: 0 
+        });
     }
 };
 
 const rechargeWalletBalance = async (req, res) => {
     try {
         const amount = Number(req.body.amount);
+
+        // Reject anything that isnt a real positive number
         if (isNaN(amount) || amount <= 0) {
-            return res.status(400).json({ success: false, message: "Invalid amount" });
+            return res.status(400).json({ 
+                success: false, 
+                message: "Enter a valid amount" 
+            });
         }
-        
-        // Execute wallet increment purely based on the strictly validated middleware token ID
-        const updatedUser = await User.findOneAndUpdate(
-            { _id: req.user._id }, 
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
             { $inc: { walletBalance: amount } },
             { new: true }
         );
 
-        return res.status(200).json({ success: true, currentBalance: updatedUser.walletBalance });
+        return res.status(200).json({ 
+            success: true, 
+            currentBalance: updatedUser.walletBalance 
+        });
+
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Recharge operation failed" });
+        console.error("Recharge error:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Recharge failed" 
+        });
     }
 };
 
 const withdrawWalletBalance = async (req, res) => {
     try {
         const amount = Number(req.body.amount);
+
         if (isNaN(amount) || amount <= 0) {
-            return res.status(400).json({ success: false, message: "Invalid withdrawal amount" });
+            return res.status(400).json({ 
+                success: false, 
+                message: "Enter a valid amount" 
+            });
         }
 
-        if (req.user.walletBalance < amount) {
-            return res.status(400).json({ success: false, message: "Insufficient balance" });
-        }
-
+        // Check and deduct in one atomic operation
+        // This prevents two requests from withdrawing the same balance simultaneously
         const updatedUser = await User.findOneAndUpdate(
-            { _id: req.user._id },
+            { 
+                _id: req.user._id,
+                walletBalance: { $gte: amount }
+            },
             { $inc: { walletBalance: -amount } },
             { new: true }
         );
 
-        return res.status(200).json({ success: true, message: "Amount withdrawn successfully", currentBalance: updatedUser.walletBalance });
+        // If updatedUser is null it means balance was insufficient
+        if (!updatedUser) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Insufficient balance" 
+            });
+        }
+
+        return res.status(200).json({ 
+            success: true, 
+            message: "Withdrawal successful",
+            currentBalance: updatedUser.walletBalance 
+        });
+
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Withdrawal operation failed" });
+        console.error("Withdrawal error:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Withdrawal failed" 
+        });
     }
 };
 
@@ -75,11 +110,11 @@ const deductWalletBalance = async (req, res) => {
         const { flightNumber, passengers, seatCost } = req.body;
         const validPassengers = Array.isArray(passengers) ? passengers : [];
 
-        const flight = await Flight.findOne({ flightNumber: flightNumber });
+        const flight = await Flight.findOne({ flightNumber });
         const baseFare = flight ? flight.baseFare : Number(seatCost || 3050);
         const travelDate = flight ? flight.travelDate : "2026-06-01";
 
-        const existingBookingsCount = await Booking.countDocuments({ 
+        const existingBookingsCount = await Booking.countDocuments({
             "flightDetails.flightNumber": flightNumber,
             "flightDetails.travelDate": travelDate
         });
@@ -88,9 +123,13 @@ const deductWalletBalance = async (req, res) => {
         let appliedSurge = 0;
         let surgeActive = false;
 
-        // Dynamic surge pricing based on active demand
+        // Every 3 bookings price goes up 10%, but never more than 50% of base
         if (existingBookingsCount >= 3) {
-            finalSeatPrice = Math.round(baseFare * 1.10);
+            const surgeMultiplier = Math.min(
+                1 + (Math.floor(existingBookingsCount / 3) * 0.10),
+                1.50
+            );
+            finalSeatPrice = Math.round(baseFare * surgeMultiplier);
             appliedSurge = finalSeatPrice - baseFare;
             surgeActive = true;
         }
@@ -98,16 +137,24 @@ const deductWalletBalance = async (req, res) => {
         const totalFare = finalSeatPrice * validPassengers.length;
         const totalSurgeForBooking = appliedSurge * validPassengers.length;
 
-        if (req.user.walletBalance < totalFare) {
-            return res.status(400).json({ success: false, message: "Insufficient balance. Please recharge your wallet." });
-        }
-
+        // Check and deduct atomically — same pattern as withdraw
         const updatedUser = await User.findOneAndUpdate(
-            { _id: req.user._id },
+            { 
+                _id: req.user._id,
+                walletBalance: { $gte: totalFare }
+            },
             { $inc: { walletBalance: -totalFare } },
             { new: true }
         );
 
+        if (!updatedUser) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Insufficient balance. Please recharge your wallet." 
+            });
+        }
+
+        // Reduce available seats, floor at 0 just in case
         if (flight) {
             flight.availableSeats = Math.max(0, flight.availableSeats - validPassengers.length);
             await flight.save();
@@ -123,7 +170,7 @@ const deductWalletBalance = async (req, res) => {
                 airline: flight ? flight.airline : "Air India",
                 departure: flight ? flight.departure : "Bhopal",
                 destination: flight ? flight.destination : "Delhi",
-                travelDate: travelDate
+                travelDate
             },
             passengers: validPassengers,
             totalPaidFare: totalFare,
@@ -131,11 +178,24 @@ const deductWalletBalance = async (req, res) => {
             surgePrice: totalSurgeForBooking
         });
 
-        return res.status(200).json({ success: true, currentBalance: updatedUser.walletBalance, booking: newBooking });
+        return res.status(200).json({ 
+            success: true, 
+            currentBalance: updatedUser.walletBalance, 
+            booking: newBooking 
+        });
+
     } catch (error) {
-        console.error(error);
-        return res.status(400).json({ success: false, message: "Payment processing failed" });
+        console.error("Payment error:", error);
+        return res.status(400).json({ 
+            success: false, 
+            message: "Payment processing failed" 
+        });
     }
 };
 
-module.exports = { getWalletBalance, rechargeWalletBalance, deductWalletBalance, withdrawWalletBalance };
+module.exports = { 
+    getWalletBalance, 
+    rechargeWalletBalance, 
+    deductWalletBalance, 
+    withdrawWalletBalance 
+};
