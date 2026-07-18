@@ -5,12 +5,14 @@ const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    // Verify existing authentication session on initial application mount
+
+    // check localStorage on first load so user stays logged in after refresh
     const [user, setUser] = useState(() => {
         try {
             const storedUser = localStorage.getItem('user');
             return storedUser ? JSON.parse(storedUser) : null;
         } catch {
+            // corrupted data — clear everything and start fresh
             localStorage.removeItem('user');
             localStorage.removeItem('token');
             return null;

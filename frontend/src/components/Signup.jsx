@@ -1,33 +1,47 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import styles from './Signup.module.css';
 
 export const Signup = ({ onNavigateToLogin }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
 
+    // basic phone format check before hitting backend
+    const validatePhone = (value) => {
+        const phoneRegex = /^\+[1-9]\d{6,14}$/;
+        return phoneRegex.test(value);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!validatePhone(phone)) {
+            setError('Enter phone with country code eg +919140026925');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
-            
             const response = await axios.post('/api/auth/register', {
                 name,
                 email,
+                phone,
                 password
             });
 
-            // Auto-authenticate user if the backend returns a token upon successful registration
+            // backend returns token on register so auto login
             if (response.data.token) {
                 login(response.data.user, response.data.token);
             } else {
-                // Redirect to login form if manual authentication is required post-registration
+                // no token means manual login required
                 onNavigateToLogin();
             }
         } catch (err) {
@@ -38,64 +52,90 @@ export const Signup = ({ onNavigateToLogin }) => {
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-            <form onSubmit={handleSubmit} style={{ padding: '40px', borderRadius: '16px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', color: '#1a1a1a', fontWeight: '800' }}>Create Account</h2>
-                
+        <div className={styles.wrapper}>
+            <form onSubmit={handleSubmit} className={styles.card}>
+
+                <div className={styles.cardHeader}>
+                    <h2 className={styles.title}>Create Account</h2>
+                    <p className={styles.subtitle}>Join AI-FlightBooker today</p>
+                </div>
+
                 {error && (
-                    <div style={{ color: '#ef4444', fontSize: '14px', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                    <div className={styles.errorBox}>
                         {error}
                     </div>
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>Full Name</label>
-                    <input 
-                        type="text" 
+                <div className={styles.field}>
+                    <label className={styles.label}>Full Name</label>
+                    <input
+                        type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
-                        style={{ padding: '12px', border: '1px solid rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '16px', background: 'rgba(255,255,255,0.6)', color: '#000', outline: 'none' }}
                         placeholder="Enter your full name"
+                        className={styles.input}
                     />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>Email Address</label>
-                    <input 
-                        type="email" 
+                <div className={styles.field}>
+                    <label className={styles.label}>Email Address</label>
+                    <input
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        style={{ padding: '12px', border: '1px solid rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '16px', background: 'rgba(255,255,255,0.6)', color: '#000', outline: 'none' }}
                         placeholder="name@example.com"
+                        className={styles.input}
                     />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>Password</label>
-                    <input 
-                        type="password" 
+                <div className={styles.field}>
+                    <label className={styles.label}>
+                        Phone Number
+                        <span className={styles.labelHint}> (with country code)</span>
+                    </label>
+                    <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                        placeholder="+919140026925"
+                        className={styles.input}
+                    />
+                    <span className={styles.fieldHint}>
+                        Format: +[country code][number] eg +919140026925
+                    </span>
+                </div>
+
+                <div className={styles.field}>
+                    <label className={styles.label}>Password</label>
+                    <input
+                        type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
-                        style={{ padding: '12px', border: '1px solid rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '16px', background: 'rgba(255,255,255,0.6)', color: '#000', outline: 'none' }}
-                        placeholder="Create a password"
+                        placeholder="Min 6 characters"
+                        className={styles.input}
                     />
                 </div>
 
-                <button 
-                    type="submit" 
+                <button
+                    type="submit"
                     disabled={isLoading}
-                    style={{ background: '#0284c7', color: 'white', padding: '14px', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: isLoading ? 'not-allowed' : 'pointer', marginTop: '10px', display: 'flex', justifyContent: 'center' }}
+                    className={styles.submitBtn}
                 >
-                    {isLoading ? <div className="loading-spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div> : 'Sign Up'}
+                    {isLoading ? <span className={styles.spinner}></span> : 'Create Account'}
                 </button>
 
-                <p style={{ textAlign: 'center', margin: '15px 0 0 0', fontSize: '14px', color: '#333' }}>
-                    Already have an account? <span onClick={onNavigateToLogin} style={{ color: '#0284c7', cursor: 'pointer', fontWeight: '700' }}>Log in</span>
+                <p className={styles.switchText}>
+                    Already have an account?{' '}
+                    <span onClick={onNavigateToLogin} className={styles.switchLink}>
+                        Log in
+                    </span>
                 </p>
+
             </form>
         </div>
     );

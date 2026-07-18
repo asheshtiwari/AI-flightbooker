@@ -1,27 +1,17 @@
-/**
- * Calculate dynamic ticket price based on search frequency.
- * @param {number} baseFare
- * @param {number} searchCount
- * @returns {number}
- */
-const computeSurgeFare = (baseFare, searchCount) => {
-    let finalPrice = baseFare;
+// one place for all surge pricing logic
 
-    // Apply 10% compounding surge for every search after 3
-    if (searchCount > 3) {
-        const extraSearches = searchCount - 3;
-        finalPrice = baseFare * Math.pow(1.10, extraSearches);
-        
-        // Enterprise Safety Guard: Cap the maximum surge to 50% of the base fare
-        const maxAllowedFare = baseFare * 1.50;
-        if (finalPrice > maxAllowedFare) {
-            finalPrice = maxAllowedFare;
-        }
+const computeSurgeFare = (baseFare, bookingCount) => {
+    if (bookingCount < 3) {
+        return baseFare;
     }
 
-    return Math.round(finalPrice);
+    // every 3 bookings adds 10%, max 50%
+    const surgeMultiplier = Math.min(
+        1 + (Math.floor(bookingCount / 3) * 0.10),
+        1.50
+    );
+
+    return Math.round(baseFare * surgeMultiplier);
 };
 
-module.exports = {
-    computeSurgeFare
-};
+module.exports = { computeSurgeFare };

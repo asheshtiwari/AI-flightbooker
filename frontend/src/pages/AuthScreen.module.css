@@ -1,0 +1,49 @@
+.authWrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #0f172a;
+}
+
+.authHeader {
+    padding: 20px 32px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    text-align: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.logoIcon {
+    font-size: 24px;
+}
+
+.logoSub {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.authMain {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.authFooter {
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    color: #475569;
+    border-top: 1px solid #1e293b;
+}

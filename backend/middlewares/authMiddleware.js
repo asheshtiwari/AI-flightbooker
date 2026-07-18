@@ -4,27 +4,34 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
     let token;
 
-    // Check if the authorization header exists and follows the Bearer token scheme
+    // check if Bearer token is in the header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            // Extract the token string from the header
+            // pull out just the token part after "Bearer "
             token = req.headers.authorization.split(' ')[1];
 
-            // Verify and decode the JWT payload using the environment secret
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_dev_secret');
+            // throws an error automatically if token is expired or tampered
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // Retrieve the authenticated user from the database, excluding the sensitive password field
+            // attach user to request so controllers can use it directly
             req.user = await User.findById(decoded.id).select('-password');
 
             next();
+
         } catch (error) {
-            console.error(error);
-            return res.status(401).json({ success: false, message: 'Not authorized, token validation failed' });
+            console.error("Token verification failed:", error.message);
+            return res.status(401).json({ 
+                success: false, 
+                message: "Not authorized, invalid token" 
+            });
         }
     }
 
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
+        return res.status(401).json({ 
+            success: false, 
+            message: "Not authorized, no token provided" 
+        });
     }
 };
 

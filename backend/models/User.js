@@ -8,27 +8,22 @@ const userSchema = new mongoose.Schema({
     email: { 
         type: String, 
         required: true, 
-        unique: true 
+        unique: true
     },
     password: {
         type: String,
         required: true
     },
+    // stored with country code eg +919140026925
+    phone: {
+        type: String,
+        required: true,
+        unique: true
+    },
     walletBalance: { 
         type: Number, 
         default: 0 
-    },
-    // Track flight searches for surge pricing logic
-    searchHistory: [{
-        flightId: {
-            type: String,
-            required: true
-        },
-        count: { 
-            type: Number, 
-            default: 0 
-        }
-    }]
+    }
 }, { 
     timestamps: true 
 });

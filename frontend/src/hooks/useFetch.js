@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-/**
- * Custom hook for mapping API requests and state
- */
 export const useFetch = (url, autoFetch = true, params = null) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(autoFetch);
@@ -24,18 +21,20 @@ export const useFetch = (url, autoFetch = true, params = null) => {
         }
     }, [url]);
 
+    // stringify params so useEffect dependency stays stable
     const serializedParams = JSON.stringify(params);
 
     useEffect(() => {
         if (!autoFetch) return;
 
         let isMounted = true;
-        
+
         const fetchData = async () => {
             setLoading(true);
             try {
                 const config = { params: serializedParams ? JSON.parse(serializedParams) : null };
                 const res = await axios.get(url, config);
+                // skip state update if component unmounted
                 if (isMounted) setData(res.data);
             } catch (err) {
                 if (isMounted) setError(err.response?.data?.message || err.message);
@@ -45,7 +44,7 @@ export const useFetch = (url, autoFetch = true, params = null) => {
         };
 
         fetchData();
-        
+
         return () => { isMounted = false; };
     }, [url, autoFetch, serializedParams]);
 

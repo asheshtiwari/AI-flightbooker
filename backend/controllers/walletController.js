@@ -1,10 +1,11 @@
 const User = require('../models/User');
 const Flight = require('../models/Flight');
 const Booking = require('../models/Booking');
+const { computeSurgeFare } = require('../services/pricingService');
 
 const getWalletBalance = async (req, res) => {
     try {
-        // Always fetch fresh balance from DB, middleware data can be stale
+        // fresh DB call so we dont serve stale middleware data
         const user = await User.findById(req.user._id).lean();
         if (!user) {
             return res.status(404).json({ 
@@ -32,7 +33,7 @@ const rechargeWalletBalance = async (req, res) => {
     try {
         const amount = Number(req.body.amount);
 
-        // Reject anything that isnt a real positive number
+        // reject anything thats not a real positive number
         if (isNaN(amount) || amount <= 0) {
             return res.status(400).json({ 
                 success: false, 
@@ -71,8 +72,7 @@ const withdrawWalletBalance = async (req, res) => {
             });
         }
 
-        // Check and deduct in one atomic operation
-        // This prevents two requests from withdrawing the same balance simultaneously
+        // check and deduct in one shot so two requests cant withdraw same balance
         const updatedUser = await User.findOneAndUpdate(
             { 
                 _id: req.user._id,
@@ -82,7 +82,7 @@ const withdrawWalletBalance = async (req, res) => {
             { new: true }
         );
 
-        // If updatedUser is null it means balance was insufficient
+        // null means balance was not enough
         if (!updatedUser) {
             return res.status(400).json({ 
                 success: false, 
@@ -119,25 +119,15 @@ const deductWalletBalance = async (req, res) => {
             "flightDetails.travelDate": travelDate
         });
 
-        let finalSeatPrice = baseFare;
-        let appliedSurge = 0;
-        let surgeActive = false;
-
-        // Every 3 bookings price goes up 10%, but never more than 50% of base
-        if (existingBookingsCount >= 3) {
-            const surgeMultiplier = Math.min(
-                1 + (Math.floor(existingBookingsCount / 3) * 0.10),
-                1.50
-            );
-            finalSeatPrice = Math.round(baseFare * surgeMultiplier);
-            appliedSurge = finalSeatPrice - baseFare;
-            surgeActive = true;
-        }
+        // surge logic lives in pricingService, not duplicated here
+        const finalSeatPrice = computeSurgeFare(baseFare, existingBookingsCount);
+        const appliedSurge = finalSeatPrice - baseFare;
+        const surgeActive = existingBookingsCount >= 3;
 
         const totalFare = finalSeatPrice * validPassengers.length;
         const totalSurgeForBooking = appliedSurge * validPassengers.length;
 
-        // Check and deduct atomically — same pattern as withdraw
+        // check and deduct atomically same as withdraw
         const updatedUser = await User.findOneAndUpdate(
             { 
                 _id: req.user._id,
@@ -154,7 +144,7 @@ const deductWalletBalance = async (req, res) => {
             });
         }
 
-        // Reduce available seats, floor at 0 just in case
+        // floor at 0 just in case seats go negative somehow
         if (flight) {
             flight.availableSeats = Math.max(0, flight.availableSeats - validPassengers.length);
             await flight.save();

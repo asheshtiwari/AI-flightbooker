@@ -6,6 +6,7 @@ const buildTicketPdfStream = (booking, res) => {
 
     const doc = new PDFDocument({ margin: 50 });
 
+    // catch PDF errors before they crash the response
     doc.on('error', (err) => {
         console.error('PDF Generation Error:', err);
         if (!res.headersSent) {
@@ -13,9 +14,10 @@ const buildTicketPdfStream = (booking, res) => {
         }
     });
 
+    // stream directly to response, no disk write needed
     doc.pipe(res);
 
-    // Header
+    // header section
     doc.fillColor('#0284c7').fontSize(26).text('AI-FlightBooker', { align: 'center' });
     doc.moveDown(0.5);
     doc.fillColor('#333333').fontSize(14).text('E-Ticket / Booking Receipt', { align: 'center' });
@@ -23,32 +25,30 @@ const buildTicketPdfStream = (booking, res) => {
     doc.text('------------------------------------------------------------', { align: 'center' });
     doc.moveDown();
 
-    // Booking info
+    // booking reference
     doc.fillColor('#666666').fontSize(11).text(`Booking Reference: ${booking.ticketNumber}`);
     doc.text(`Date of Booking: ${new Date(booking.bookingDate).toLocaleString()}`);
     doc.moveDown(2);
 
-    // Flight details
+    // flight info
     doc.fillColor('#0284c7').fontSize(16).text('Flight Details');
     doc.moveDown(0.5);
     doc.fillColor('#333333').fontSize(12);
     doc.text(`Airline: ${booking.flightDetails.airline} (${booking.flightDetails.flightNumber})`);
     doc.text(`Route: ${booking.flightDetails.departure} to ${booking.flightDetails.destination}`);
     doc.text(`Travel Date: ${booking.flightDetails.travelDate}`);
-    
-    // NAYA TIME LOGIC YAHAN ADD HUA HAI (Safely checking for old tickets)
+
+    // older tickets might not have times, fallback just in case
     const depTime = booking.flightDetails.departureTime || '10:00 AM';
     const arrTime = booking.flightDetails.arrivalTime || '12:30 PM';
     doc.text(`Time: ${depTime} - ${arrTime}`);
-    
     doc.moveDown(2);
 
-    // Passengers
+    // passenger list
     doc.fillColor('#0284c7').fontSize(16).text('Passenger Details');
     doc.moveDown(0.5);
     doc.fillColor('#333333').fontSize(12);
-    
-    // Safely iterate through passengers if the array exists
+
     if (Array.isArray(booking.passengers)) {
         booking.passengers.forEach((passenger, index) => {
             doc.text(`${index + 1}. ${passenger.name} (Age: ${passenger.age}, Gender: ${passenger.gender})`);
@@ -59,7 +59,7 @@ const buildTicketPdfStream = (booking, res) => {
     doc.text('------------------------------------------------------------');
     doc.moveDown(0.5);
 
-    // Fare breakdown logic
+    // fare breakdown
     const total = Number(booking.totalPaidFare) || 0;
     const surge = Number(booking.surgePrice) || 0;
     const base = total - surge;
@@ -79,10 +79,7 @@ const buildTicketPdfStream = (booking, res) => {
     doc.moveDown(0.5);
     doc.fillColor('#10b981').fontSize(16).text(`Total Amount Paid: INR ${total}`, { align: 'right' });
 
-    // Finalize the PDF document construction
     doc.end();
 };
 
-module.exports = {
-    buildTicketPdfStream
-};
+module.exports = { buildTicketPdfStream };

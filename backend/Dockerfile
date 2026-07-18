@@ -1,20 +1,17 @@
-# Base image
+# using alpine because its small and fast
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /usr/src/app
 
-# Copy package files (optimizes image caching)
+# copy package files first so docker caches this layer
+# if code changes but packages dont, npm install wont re-run
 COPY package*.json ./
 
-# Install production dependencies only
+# prod only, no devDependencies needed in container
 RUN npm install --only=production
 
-# Copy application code
 COPY . .
 
-# Expose server port
 EXPOSE 5000
 
-# Start the application
 CMD ["node", "server.js"]

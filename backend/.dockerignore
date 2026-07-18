@@ -2,3 +2,13 @@ node_modules
 logs
 .env
 tests
+
+# no need to copy these into docker image
+.git
+.gitignore
+README.md
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db

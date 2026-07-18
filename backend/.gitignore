@@ -3,3 +3,10 @@ node_modules/
 .DS_Store
 *.log
 logs/
+
+# editor folders
+.vscode/
+.idea/
+
+# docker
+.dockerignore

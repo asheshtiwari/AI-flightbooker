@@ -1,26 +1,33 @@
 import { useState } from 'react';
 import { Login } from '../components/Login';
 import { Signup } from '../components/Signup';
+import styles from './AuthScreen.module.css';
 
 export const AuthScreen = () => {
-    // Manage toggle state between Login and Signup views
+    // toggle between login and signup
     const [isLoginView, setIsLoginView] = useState(true);
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            {/* Authentication screen header */}
-            <header style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}>
-                <h1 style={{ margin: 0, color: '#ffffff', fontSize: '24px' }}>AI-FlightBooker</h1>
+        <div className={styles.authWrapper}>
+            <header className={styles.authHeader}>
+                <div className={styles.logo}>
+                    <span className={styles.logoIcon}>✈</span>
+                    AI-FlightBooker
+                </div>
+                <p className={styles.logoSub}>Book smarter. Fly better.</p>
             </header>
 
-            {/* Render the active authentication component dynamically */}
-            <main style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <main className={styles.authMain}>
                 {isLoginView ? (
                     <Login onNavigateToSignup={() => setIsLoginView(false)} />
                 ) : (
                     <Signup onNavigateToLogin={() => setIsLoginView(true)} />
                 )}
             </main>
+
+            <footer className={styles.authFooter}>
+                <p>© 2026 AI-FlightBooker. All rights reserved.</p>
+            </footer>
         </div>
     );
 };

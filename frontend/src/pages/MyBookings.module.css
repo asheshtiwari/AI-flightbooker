@@ -1,0 +1,275 @@
+.wrapper {
+    padding: 24px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.toast {
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.toastSuccess {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.toastError {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.pageTitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0;
+}
+
+.clearBtn {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clearBtn:hover {
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* delete confirm modal */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.deleteModal {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 28px;
+    width: 100%;
+    max-width: 360px;
+}
+
+.deleteTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 10px 0;
+}
+
+.deleteText {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0 0 20px 0;
+    line-height: 1.6;
+}
+
+.deleteActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancelBtn {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+    color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.confirmDeleteBtn {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.confirmDeleteBtn:hover {
+    background: #dc2626;
+}
+
+/* state boxes */
+.stateBox {
+    text-align: center;
+    padding: 48px 20px;
+    color: #475569;
+    font-size: 14px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+/* booking list */
+.bookingList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bookingCard {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.bookingLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 220px;
+}
+
+.airline {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.flightNum {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 400;
+}
+
+.route {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.arrow {
+    color: #475569;
+}
+
+.metaRow {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: #64748b;
+    flex-wrap: wrap;
+}
+
+.metaDot {
+    color: #334155;
+}
+
+.ticketId {
+    font-size: 11px;
+    color: #475569;
+    font-family: monospace;
+    margin-top: 2px;
+}
+
+.bookingRight {
+    display: flex;
+    align-items: center;
+}
+
+.cancelledSection {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.cancelledBadge {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.refundNote {
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 500;
+}
+
+.actionBtns {
+    display: flex;
+    gap: 8px;
+}
+
+.cancelTicketBtn {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancelTicketBtn:hover {
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.downloadBtn {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.downloadBtn:hover {
+    background: #1d4ed8;
+}

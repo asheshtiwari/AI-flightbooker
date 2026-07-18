@@ -1,9 +1,6 @@
-/**
- * Formats a number as Indian Rupees.
- * @param {number} amount
- */
+// formats number to Indian rupee string eg 3500 -> ₹3,500
 export const formatIndianRupees = (amount) => {
-    // Return default zero if value is missing
+    // null or undefined aaye to zero dikhao
     if (amount === null || amount === undefined) {
         return '₹0';
     }

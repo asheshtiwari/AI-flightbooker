@@ -1,17 +1,15 @@
 import axios from 'axios';
 
-// LOGIC: if use local computer and render also
+// local dev uses local backend, production uses render
 const isLocalDev = import.meta.env.MODE === 'development';
 
-axios.defaults.baseURL = isLocalDev 
-    ? 'http://localhost:5000' 
+axios.defaults.baseURL = isLocalDev
+    ? 'http://localhost:5000'
     : 'https://ai-flightbooker.onrender.com';
 
-/**
- * Global API Interceptor Setup
- * Handles JWT injection and automated session cleanup on unauthorized access.
- */
 export const setupAxiosInterceptors = () => {
+
+    // attach token to every request automatically
     axios.interceptors.request.use(
         (config) => {
             try {
@@ -23,19 +21,19 @@ export const setupAxiosInterceptors = () => {
                 console.error("Interceptor request error:", err);
             }
             return config;
-        }, 
+        },
         (error) => Promise.reject(error)
     );
 
+    // 401 means token expired or invalid — clear session and redirect
     axios.interceptors.response.use(
         (response) => response,
         (error) => {
-            // Handle token expiration or invalid session
             if (error.response?.status === 401) {
                 localStorage.clear();
-                // Avoid infinite redirect if already at root
+                // avoid infinite redirect if already on root
                 if (window.location.pathname !== '/') {
-                    window.location.href = '/'; 
+                    window.location.href = '/';
                 }
             }
             return Promise.reject(error);

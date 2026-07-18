@@ -13,31 +13,29 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-//Database connection
 connectDB();
 
-//Middleware
+// filter(Boolean) removes undefined if CLIENT_URL is not set
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    process.env.CLIENT_URL
-  ].filter(Boolean),
-  credentials: true
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        process.env.CLIENT_URL
+    ].filter(Boolean),
+    credentials: true
 }));
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
-// Health Check Route
+// basic health check so deployment platforms know server is alive
 app.get('/', (req, res) => {
-  res.status(200).json({
-    status: "success",
-    message: "AI-FlightBooker API is running smoothly!",
-    version: "1.0.0"
-  });
+    res.status(200).json({
+        status: "success",
+        message: "AI-FlightBooker API is running smoothly!",
+        version: "1.0.0"
+    });
 });
 
-// routes
 app.use('/api/auth', authRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/wallet', walletRoutes);

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
-
+//// all routes need valid token
 // Import authentication middleware to secure protected routes
 const { protect } = require('../middlewares/authMiddleware');
 

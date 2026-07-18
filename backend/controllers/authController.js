@@ -2,10 +2,9 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Generate a signed JWT token for the given user ID
 const generateToken = (userId) => {
     if (!process.env.JWT_SECRET) {
-        throw new Error('JWT_SECRET is missing from environment variables');
+        throw new Error('JWT_SECRET missing from env');
     }
     return jwt.sign(
         { id: userId },
@@ -14,27 +13,28 @@ const generateToken = (userId) => {
     );
 };
 
-// Strip out password and internal fields before sending user data to frontend
+// dont send password to frontend
 const sanitizeUser = (user) => ({
     _id: user._id,
     name: user.name,
     email: user.email,
+    phone: user.phone,
     walletBalance: user.walletBalance
 });
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, phone } = req.body;
 
-        // Basic field presence check before touching the database
-        if (!name || !email || !password) {
+        // all fields required
+        if (!name || !email || !password || !phone) {
             return res.status(400).json({ 
                 success: false, 
-                message: "Name, email and password are all required" 
+                message: "All fields are required" 
             });
         }
 
-        // Minimum password length — short passwords are easy to brute force
+        // short passwords are easy to crack
         if (password.length < 6) {
             return res.status(400).json({ 
                 success: false, 
@@ -42,11 +42,23 @@ const registerUser = async (req, res) => {
             });
         }
 
-        const existingUser = await User.findOne({ email });
+        // international format +countrycode+number
+        const phoneRegex = /^\+[1-9]\d{6,14}$/;
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Enter phone with country code eg +919140026925" 
+            });
+        }
+
+        // check both so same email or phone cant register twice
+        const existingUser = await User.findOne({ 
+            $or: [{ email }, { phone }] 
+        });
         if (existingUser) {
             return res.status(400).json({ 
                 success: false, 
-                message: "This email is already registered" 
+                message: "Email or phone already registered" 
             });
         }
 
@@ -56,7 +68,8 @@ const registerUser = async (req, res) => {
         const newUser = await User.create({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            phone
         });
 
         const token = generateToken(newUser._id);
@@ -80,7 +93,7 @@ const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Field check before database lookup
+        // fields required before DB call
         if (!email || !password) {
             return res.status(400).json({ 
                 success: false, 
@@ -90,8 +103,7 @@ const loginUser = async (req, res) => {
 
         const user = await User.findOne({ email });
 
-        // Same message for wrong email and wrong password
-        // Separate messages let attackers figure out which emails are registered
+        // same message so attacker cant tell which field is wrong
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ 
                 success: false, 
