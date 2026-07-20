@@ -1,9 +1,12 @@
 # AI-FlightBooker
 
-<img width="1536" height="1024" alt="logi_signup_page" src="https://github.com/user-attachments/assets/826faa34-4d58-42d7-b036-f076cb7e42ec" />
-<img width="1919" height="915" alt="search_flight_page" src="https://github.com/user-attachments/assets/64f51912-468d-4308-8fdc-3439c489f523" />
-<img width="1913" height="918" alt="AI_model" src="https://github.com/user-attachments/assets/a5a5a9f3-57a6-411a-a8a2-8442eabe3198" />
-<img width="1888" height="864" alt="my_bookings" src="https://github.com/user-attachments/assets/a13aef70-283b-4c4b-9252-4d5e50252adb" />
+<img width="1536" height="732" alt="Image" src="https://github.com/user-attachments/assets/c661638f-1482-42a1-8e5e-7214dc3e3ddc" />
+
+<img width="1534" height="729" alt="Image" src="https://github.com/user-attachments/assets/2354329d-6bac-4eb5-add5-c857f6398fb4" />
+
+<img width="1535" height="732" alt="Image" src="https://github.com/user-attachments/assets/27d9de2b-bc86-4f6a-9ad5-03651661273f" />
+
+<img width="1528" height="726" alt="Image" src="https://github.com/user-attachments/assets/33dac07a-96e1-4c6f-9c3f-b81b929374e4" />
 
 **[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API](https://ai-flightbooker-backend.onrender.com/)**
 
