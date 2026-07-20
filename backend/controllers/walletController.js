@@ -112,11 +112,22 @@ const deductWalletBalance = async (req, res) => {
 
         const flight = await Flight.findOne({ flightNumber });
         const baseFare = flight ? flight.baseFare : Number(seatCost || 3050);
-        const travelDate = flight ? flight.travelDate : "2026-06-01";
+        const travelDate = flight ? flight.travelDate : null;
 
+        // block booking if flight date is in the past
+        const todayDate = new Date().toISOString().split('T')[0];
+        if (travelDate && travelDate < todayDate) {
+            return res.status(400).json({
+                success: false,
+                message: "Cannot book tickets for past dates."
+            });
+        }
+
+        // cancelled tickets dont count toward surge
         const existingBookingsCount = await Booking.countDocuments({
             "flightDetails.flightNumber": flightNumber,
-            "flightDetails.travelDate": travelDate
+            "flightDetails.travelDate": travelDate,
+            status: { $ne: "CANCELLED" }
         });
 
         // surge logic lives in pricingService, not duplicated here
@@ -160,7 +171,7 @@ const deductWalletBalance = async (req, res) => {
                 airline: flight ? flight.airline : "Air India",
                 departure: flight ? flight.departure : "Bhopal",
                 destination: flight ? flight.destination : "Delhi",
-                travelDate
+                travelDate: travelDate || todayDate
             },
             passengers: validPassengers,
             totalPaidFare: totalFare,

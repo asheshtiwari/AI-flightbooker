@@ -7,10 +7,17 @@ import styles from './Dashboard.module.css';
 
 export const Dashboard = ({ onWalletSync }) => {
 
+    // always use today as the minimum bookable date
+    const today = new Date().toISOString().split('T')[0];
+
     // restore last search from session so user doesnt lose their search on tab switch
     const [origin, setOrigin] = useState(() => sessionStorage.getItem('searchFrom') || 'Varanasi');
     const [destination, setDestination] = useState(() => sessionStorage.getItem('searchTo') || 'Delhi');
-    const [date, setDate] = useState(() => sessionStorage.getItem('searchDate') || '2026-06-01');
+    const [date, setDate] = useState(() => {
+        const saved = sessionStorage.getItem('searchDate');
+        // if saved date is in the past, fall back to today
+        return saved && saved >= today ? saved : today;
+    });
     const [searchParams, setSearchParams] = useState({ from: origin, to: destination, date });
 
     const [notification, setNotification] = useState({ body: '', type: '' });
@@ -37,6 +44,13 @@ export const Dashboard = ({ onWalletSync }) => {
 
     const handleSearch = (e) => {
         e.preventDefault();
+
+        // block past date search before hitting backend
+        if (date < today) {
+            notify("Please select today or a future date.", 'error');
+            return;
+        }
+
         // _t forces useFetch to re-run even if params look the same
         setSearchParams({ from: origin, to: destination, date, _t: Date.now() });
     };
@@ -102,6 +116,7 @@ export const Dashboard = ({ onWalletSync }) => {
                             type="date"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
+                            min={today}
                             className={styles.input}
                         />
                     </div>

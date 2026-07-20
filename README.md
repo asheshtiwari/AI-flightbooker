@@ -1,102 +1,86 @@
-# AI‑FlightBooker
-
+# AI-FlightBooker
 
 <img width="1536" height="1024" alt="logi_signup_page" src="https://github.com/user-attachments/assets/826faa34-4d58-42d7-b036-f076cb7e42ec" />
 <img width="1919" height="915" alt="search_flight_page" src="https://github.com/user-attachments/assets/64f51912-468d-4308-8fdc-3439c489f523" />
 <img width="1913" height="918" alt="AI_model" src="https://github.com/user-attachments/assets/a5a5a9f3-57a6-411a-a8a2-8442eabe3198" />
 <img width="1888" height="864" alt="my_bookings" src="https://github.com/user-attachments/assets/a13aef70-283b-4c4b-9252-4d5e50252adb" />
 
+**[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API](https://ai-flightbooker.onrender.com/)**
 
-**[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Request Feature](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API (Backend)](https://ai-flightbooker.onrender.com/)**
+---
 
-## Overview
+I built this to actually understand how booking systems work under pressure — what happens when two users book the same seat at the same time, how surge pricing stays consistent across services, and how to make an AI assistant that knows your actual account state instead of making things up.
 
-AI‑FlightBooker is a production‑ready, full‑stack flight booking engine built to handle real operational edge cases. It combines a defensive backend, a responsive Vite + React frontend, and a context‑aware RAG AI concierge. The project emphasizes atomic transactions, isolated pricing logic, memory‑safe PDF streaming, and CI‑backed quality gates so the code is safe to demo to senior engineers and recruiters.
+It's a full-stack app with a Node/Express backend, React frontend, MongoDB, and a Cohere RAG pipeline. The parts I'm most proud of are the ones that broke first and had to be fixed properly.
 
-## Tech Stack
+## Stack
 
-* **Frontend:** React (Vite), Context API, Axios (interceptors), Vanilla CSS
-* **Backend:** Node.js, Express, MongoDB (Mongoose)
-* **AI:** Cohere command-a-03-2025 via a custom RAG pipeline
-* **Utilities:** pdfkit, bcryptjs, jsonwebtoken
-* **DevOps & Testing:** GitHub Actions, Node assert / Jest, Winston logging
+- **Frontend:** React (Vite), Context API, Axios interceptors, CSS Modules
+- **Backend:** Node.js, Express, MongoDB (Mongoose)
+- **AI:** Cohere command-a-03-2025 — custom RAG pipeline
+- **Libraries:** pdfkit, bcryptjs, jsonwebtoken, cors, morgan, dotenv, Winston
+- **DevOps:** Docker, GitHub Actions, nodemon
 
-## Key Features
+## What I had to fix
 
-### Dynamic Pricing
-1.  **Compounding surge:** Developed a custom pricing system that increases flight fares by 10% after 3 bookings are made for a specific flight date, with a maximum limit of 50% to handle real-world high demand.
-2.  **Safety cap:** Surge is strictly capped at 50% of the base fare (`baseFare * 1.50`) to prevent runaway inflation.
-3.  **Calculation isolation:** Backend computes base fare and surge separately and renders the breakdown on invoices so the frontend cannot tamper with pricing.
-4.  **Test‑driven verification:** Pricing logic and edge cases (zero‑values, thresholds) are independently verified before execution via a custom Node.js assert test suite (`pricing.test.js`).
+**Race condition in wallet deductions** — the first version checked the balance, then deducted. Two requests arriving at the same millisecond could both pass the balance check and overdraw the account. Fixed by combining the check and deduct into one `findOneAndUpdate` with a `$gte` condition — either it finds a document with enough balance and updates it, or it returns null.
 
-### Wallet & Transactions
-1.  **Stateless JWT auth:** Uses `expiresIn: '7d'` and Axios interceptors for automatic token injection.
-2.  **Atomic updates:** Wallet operations use MongoDB atomic operators (`$inc`, `$set`) to avoid race conditions and negative balances.
-3.  **Synchronous checkout:** Balance validation, seat inventory decrement, and booking writes are executed as a tightly coupled operation to maintain ledger consistency.
-4. **Instant Cancellation & Auto-Refunds:**Built a seamless one-click cancellation flow that automatically frees up the flight seat and instantly credits the refund back to the user's wallet.
+**Cancellation leaving users without refunds** — cancelling a ticket used to be three separate database calls: mark cancelled, refund wallet, restore seat. A server crash between any two meant the user lost their money silently. Wrapped all three in a MongoDB session transaction — everything commits together or nothing does.
 
-### AI Concierge (RAG)
-1.  **Context injection:** `/api/ai/chat` injects the authenticated user’s wallet balance and last five bookings (optimized via `.lean()`) into the LLM prompt.
-2.  **Domain guardrails:** System prompts constrain the model to aviation, ticketing, and wallet tasks only.
-3.  **Graceful degradation:** If the LLM fails or times out, the API returns a structured offline response to avoid frontend crashes.
-4.  **Payload sanitization:** Incoming messages are trimmed and validated server‑side to avoid empty requests and unnecessary token usage.
-5. **Context-Aware AI Support:** Upgraded the AI RAG pipeline to dynamically read the database state, allowing the AI assistant to provide users with real-time, human-like updates regarding their cancelled tickets and wallet refund statuses.
+**Surge pricing counting cancelled tickets** — when a flight had enough bookings to trigger surge, cancelled bookings were still counted. So a flight with 3 real bookings and 10 cancellations was showing surge pricing. Fixed the aggregate query to filter out `CANCELLED` status before counting.
 
-### PDF Streaming
-1.  **Memory‑optimized:** Tickets are generated with `pdfkit` and streamed directly to the client via `doc.pipe(res)`, avoiding server disk writes.
+**N+1 query on flight search** — for every flight in the search results, the code fired a separate `countDocuments` call to check booking count for surge. Ten flights meant ten DB calls. Replaced with a single `aggregate` pipeline that groups booking counts for all flights at once.
 
-### Search & Discovery
-1.  **JIT seeding:** If a route has no flights, the service seeds mock flights with `insertMany` to avoid empty search results.
-2.  **Fuzzy matching:** Search uses case‑insensitive regex to tolerate input variations.
+**Stale wallet balance in AI responses** — the AI was reading wallet balance from `req.user`, which comes from the JWT middleware and reflects the balance at login time. If the user recharged after logging in, the AI would tell them their old balance. Fixed by fetching fresh balance from the DB on every AI request.
 
-### Security & Multi‑tenant Isolation
-1.  **IDOR protection:** All resource queries enforce ownership checks, e.g., `findOne({ ticketNumber, userRef: req.user._id })`.
-2.  **Response sanitization:** Controllers filter out sensitive fields such as hashed passwords before returning user objects.
+**Past date bookings** — nothing was stopping users from booking flights on dates that had already passed. Added `min={today}` on the date input and a date comparison on the backend before processing any payment.
 
-## Frontend, API Security and Developer Ergonomics
+## How the AI assistant works
 
-1.  **Pre‑emptive interceptors:** Axios security layer is initialized in `index.jsx` before React component mounting to prevent token race conditions on initial load. This prevents early dashboard requests from failing during session restoration and is a deliberate frontend optimization to avoid transient 401/race issues.
-2.  **Optimistic UI & rollback:** Wallet and booking flows use optimistic updates with deterministic rollback and background reconciliation to keep the UX snappy while preserving correctness.
-3.  **Build & runtime notes:** Frontend env vars must be prefixed with `VITE_` (e.g., `VITE_API_BASE_URL`) so they are available at build time. Ensure CORS on the backend allows the deployed frontend origin.
+The chatbot isn't a simple Cohere wrapper. On every message, it fetches the user's current wallet balance from the DB and their last 5 bookings, builds a context string, and injects it into the system prompt. Domain guardrails in the prompt stop it from answering anything outside flights, bookings, and wallet. If Cohere is down or times out after 30 seconds, it returns a structured offline response instead of crashing.
 
-## CI/CD & DevOps
+## Security decisions
 
-1.  **Automated quality gates:** A GitHub Actions workflow (`ci.yml`) automatically provisions an Ubuntu environment to run `npm ci` and Jest tests on every push, ensuring broken code never reaches the main branch.
-2.  **Deterministic installs:** CI uses `npm ci` to lock dependency trees and avoid build drift.
-3.  **Safe seeding:** `seed.js` refuses to run when `NODE_ENV === 'production'` to prevent accidental data wipes.
-4.  **Logging & observability:** Use Winston for structured production logs; keep sensitive data out of logs and use environment secrets in CI.
+- JWT secret throws on startup if missing — no silent fallback to a weak default string
+- Every booking and ticket query includes `userRef: req.user._id` — users can only access their own data
+- Login returns the same error for wrong email and wrong password — prevents figuring out which emails are registered
+- Phone stored with country code, regex-validated on both ends
+- CORS locked to the deployed frontend URL via environment variable
+- Passwords hashed with bcrypt, never returned in responses
+- `seed.js` blocks itself from running in production
 
-## Local Setup, Deployment Checklist & Env Vars
-
-### Quick Local Start
+## Local setup
 
 ```bash
 git clone https://github.com/asheshtiwari/AI-flightbooker.git
 cd AI-flightbooker
 ```
-### Backend Setup
 
-```Bash
+**Backend:**
+```bash
 cd backend
 cp .env.example .env
-# Edit .env: MONGO_URI, JWT_SECRET, COHERE_API_KEY, PORT
+# fill in: MONGO_URI, JWT_SECRET, COHERE_API_KEY, CLIENT_URL
 npm ci
-# seed.js refuses to run in production
 node seed.js
 npm start
 ```
 
-### Frontend Setup
-
-```Bash
+**Frontend:**
+```bash
 cd frontend
 cp .env.example .env
-# Edit .env: VITE_API_BASE_URL=http://localhost:5000/api
+# fill in: VITE_API_BASE_URL
 npm ci
 npm run dev
 ```
-### Run Tests
-```Bash
+
+**Tests:**
+```bash
 cd backend
 npm test
 ```
+
+## CI/CD
+
+GitHub Actions runs `npm ci` and Jest on every push to main. `seed.js` refuses to run in production so there's no way to accidentally wipe real data on the live server.

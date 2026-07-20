@@ -24,38 +24,38 @@ defaultDate.setDate(defaultDate.getDate() + 7);
 const travelDateString = defaultDate.toISOString().split('T')[0];
 
 const defaultFlights = [
-    { 
-        flightNumber: "AI-302", 
-        airline: "Air India", 
-        departure: "DEL", 
-        destination: "BOM", 
-        baseFare: 5000, 
-        availableSeats: 50, 
-        travelDate: travelDateString, 
-        departureTime: "06:00 AM", 
-        arrivalTime: "08:15 AM" 
+    {
+        flightNumber: "AI-302",
+        airline: "Air India",
+        departure: "DEL",
+        destination: "BOM",
+        baseFare: 5000,
+        availableSeats: 50,
+        travelDate: travelDateString,
+        departureTime: "06:00 AM",
+        arrivalTime: "08:15 AM"
     },
-    { 
-        flightNumber: "6E-512", 
-        airline: "IndiGo", 
-        departure: "BHO", 
-        destination: "DEL", 
-        baseFare: 3500, 
-        availableSeats: 70, 
-        travelDate: travelDateString, 
-        departureTime: "10:30 AM", 
-        arrivalTime: "12:00 PM" 
+    {
+        flightNumber: "6E-512",
+        airline: "IndiGo",
+        departure: "BHO",
+        destination: "DEL",
+        baseFare: 3500,
+        availableSeats: 70,
+        travelDate: travelDateString,
+        departureTime: "10:30 AM",
+        arrivalTime: "12:00 PM"
     },
-    { 
-        flightNumber: "SG-841", 
-        airline: "SpiceJet", 
-        departure: "BLR", 
-        destination: "CCU", 
-        baseFare: 5500, 
-        availableSeats: 40, 
-        travelDate: travelDateString, 
-        departureTime: "04:45 PM", 
-        arrivalTime: "07:10 PM" 
+    {
+        flightNumber: "SG-841",
+        airline: "SpiceJet",
+        departure: "BLR",
+        destination: "CCU",
+        baseFare: 5500,
+        availableSeats: 40,
+        travelDate: travelDateString,
+        departureTime: "04:45 PM",
+        arrivalTime: "07:10 PM"
     }
 ];
 
@@ -72,9 +72,10 @@ mongoose.connect(process.env.MONGO_URI)
         const hashedPassword = await bcrypt.hash("password123", salt);
 
         await User.create({
-            name: "Ashesh",
-            email: "admin@flightbooker.local",
+            name: "Test User",
+            email: "test@flightbooker.local",
             password: hashedPassword,
+            phone: "+910000000000",
             walletBalance: 15000
         });
 

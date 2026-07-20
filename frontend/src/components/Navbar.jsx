@@ -33,7 +33,6 @@ export const Navbar = ({ walletBalance, onRechargeAction, onWithdrawAction, user
     return (
         <nav className={styles.navbar}>
             <div className={styles.brand}>
-                <span className={styles.brandAccent}>✈</span>
                 AI-FlightBooker
             </div>
 
@@ -49,7 +48,7 @@ export const Navbar = ({ walletBalance, onRechargeAction, onWithdrawAction, user
                 <div className={styles.transactionGroup}>
                     <input
                         type="number"
-                        placeholder="Amount (₹)"
+                        placeholder="Amount"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         className={styles.amountInput}
@@ -58,7 +57,7 @@ export const Navbar = ({ walletBalance, onRechargeAction, onWithdrawAction, user
                         onClick={() => handleTransaction('add')}
                         className={styles.addBtn}
                     >
-                        + Add
+                        Add
                     </button>
                     <button
                         onClick={() => handleTransaction('withdraw')}

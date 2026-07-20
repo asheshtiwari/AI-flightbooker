@@ -61,7 +61,13 @@ const getAvailableFlights = async (req, res) => {
         const flightNumbers = flights.map(f => f.flightNumber);
 
         const bookingCounts = await Booking.aggregate([
-            { $match: { 'flightDetails.flightNumber': { $in: flightNumbers } } },
+            { 
+                $match: { 
+                    'flightDetails.flightNumber': { $in: flightNumbers },
+                    // cancelled tickets dont count toward surge
+                    status: { $ne: 'CANCELLED' }
+                } 
+            },
             { $group: { _id: '$flightDetails.flightNumber', count: { $sum: 1 } } }
         ]);
 
