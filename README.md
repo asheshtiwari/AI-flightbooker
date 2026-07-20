@@ -8,6 +8,8 @@
 
 <img width="1528" height="726" alt="Image" src="https://github.com/user-attachments/assets/33dac07a-96e1-4c6f-9c3f-b81b929374e4" />
 
+<img width="484" height="681" alt="Image" src="https://github.com/user-attachments/assets/d261859f-1e00-417b-ab0d-f1b5b9b6a70a" />
+
 **[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API](https://ai-flightbooker-backend.onrender.com/)**
 
 ---
