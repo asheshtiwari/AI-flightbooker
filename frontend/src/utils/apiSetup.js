@@ -5,7 +5,7 @@ const isLocalDev = import.meta.env.MODE === 'development';
 
 axios.defaults.baseURL = isLocalDev
     ? 'http://localhost:5000'
-    : 'https://ai-flightbooker.onrender.com';
+    : 'https://ai-flightbooker-backend.onrender.com';
 
 export const setupAxiosInterceptors = () => {
 
