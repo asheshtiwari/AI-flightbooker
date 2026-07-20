@@ -5,7 +5,7 @@
 <img width="1913" height="918" alt="AI_model" src="https://github.com/user-attachments/assets/a5a5a9f3-57a6-411a-a8a2-8442eabe3198" />
 <img width="1888" height="864" alt="my_bookings" src="https://github.com/user-attachments/assets/a13aef70-283b-4c4b-9252-4d5e50252adb" />
 
-**[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API](https://ai-flightbooker.onrender.com/)**
+**[Live Demo](https://ai-flightbooker.vercel.app/) | [Report Bug](https://github.com/asheshtiwari/AI-flightbooker/issues) | [Live API](https://ai-flightbooker-backend.onrender.com/)**
 
 ---
 
